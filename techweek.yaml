@@ -10,6 +10,7 @@ Parameters:
     AllowedValues: ['eu-central-1', 'us-east-1', 'us-west-1']
     Default: 'eu-central-1'
 
+
 Resources:
   "cloudfront":
     Type: AWS::CloudFront::Distribution
@@ -52,16 +53,16 @@ Resources:
             - '${Environment}.html'
             - Environment: !Ref Env
 
-
     "BucketPolicy":
       Type: AWS::S3::BucketPolicy
       Properties:
-        Bucket: s3-bucket-tech-week-2-awsome
+        Bucket: !Ref bucket
         PolicyDocument:
+          Id: 1
           Version: '2012-10-17'
           Statement:
-            - Action: 's3:GetObject' 
+            - Action: 's3:GetObject'
               Effect: Allow
               Principal:
                 AWS: !Sub 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOriginIdentity}'
-              Resource: arn:aws:s3:::s3-bucket-tech-week-2-awsome/*
+              Resource: !Sub 'arn:aws:s3:::${bucket}/*'
