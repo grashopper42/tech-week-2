@@ -1,0 +1,12 @@
+Parameters:
+  Env:
+    Type: String
+    AllowedValues: ['dev', 'test', 'prod']
+    Default: 'dev'
+
+Type: AWS::CloudFront::Distribution
+Properties: 
+  DistributionConfig: 
+    DistributionConfig
+  Tags: 
+    - Tag
