@@ -16,8 +16,8 @@ Resources:
     Properties:
       DistributionConfig:
         Origins:
-          - DomainName: !Sub my-s3-bucket.s3.${Reg}.amazonaws.com
-            Id: my-s3-bucket
+          - DomainName: !Sub s3-bucket-tech-week-2-awsome.s3.${Reg}.amazonaws.com
+            Id: s3-bucket-tech-week-2-awsome
             S3OriginConfig:
               OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOriginIdentity}'
         Enabled: 'true'
@@ -26,7 +26,7 @@ Resources:
           AllowedMethods:
             - GET
             - HEAD
-          TargetOriginId: my-s3-bucket
+          TargetOriginId: s3-bucket-tech-week-2-awsome
           ForwardedValues:
             QueryString: 'false'
             Cookies:
@@ -44,7 +44,7 @@ Resources:
   "bucket":
     Type: AWS::S3::Bucket
     Properties: 
-      BucketName: my-s3-bucket
+      BucketName: s3-bucket-tech-week-2-awsome
       VersioningConfiguration: 
           Status: Enabled
       WebsiteConfiguration: 
@@ -56,12 +56,12 @@ Resources:
     "BucketPolicy":
       Type: AWS::S3::BucketPolicy
       Properties:
-        Bucket: my-s3-bucket
+        Bucket: s3-bucket-tech-week-2-awsome
         PolicyDocument:
           Version: '2012-10-17'
           Statement:
-            - Effect: Allow
+            - Action: 's3:GetObject' 
+              Effect: Allow
               Principal:
                 AWS: !Sub 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOriginIdentity}'
-              Action: 's3:GetObject'
-              Resource: arn:aws:s3:::my-s3-bucket/*
+              Resource: arn:aws:s3:::s3-bucket-tech-week-2-awsome/*
