@@ -9,11 +9,33 @@ Parameters:
 resources:
   "cloudfront":
     Type: AWS::CloudFront::Distribution
-    Properties: 
-      DistributionConfig: 
-        DistributionConfig
-      Tags: 
-        - Tag
+    Properties:
+      DistributionConfig:
+        Origins:
+          - DomainName: my-s3-bucket.s3.eu-central-1.amazonaws.com
+            Id: my-s3-bucket
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOriginIdentity}'
+        Enabled: 'true'
+        Comment: Some comment
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - GET
+            - HEAD
+          TargetOriginId: my-s3-bucket
+          ForwardedValues:
+            QueryString: 'false'
+            Cookies:
+              Forward: none
+          ViewerProtocolPolicy: redirect-to-https
+        ViewerCertificate:
+          CloudFrontDefaultCertificate: 'true'
+
+  "CloudFrontOriginIdentity":
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: 'origin identity'
 
   "bucket":
     Type: AWS::S3::Bucket
@@ -30,6 +52,20 @@ resources:
             RedirectAllRequestsTo
           RoutingRules: 
             - RoutingRule
+
+    "BucketPolicy":
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: private-bucket
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                AWS: !Sub 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOriginIdentity}'
+              Action: 's3:GetObject'
+              Resource: arn:aws:s3:::my-s3-bucket/*
+
     "VPC":
       Type: AWS::EC2::VPC
       Properties:
