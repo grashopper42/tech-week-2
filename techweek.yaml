@@ -45,17 +45,11 @@ resources:
     Type: AWS::S3::Bucket
     Properties: 
       BucketName: my-s3-bucket
-      Tags: 
-        - Tag
       VersioningConfiguration: 
-        VersioningConfiguration
+          Status: Enabled
       WebsiteConfiguration: 
-          ErrorDocument: String
           IndexDocument: !sub ${Env}.html
-          RedirectAllRequestsTo: 
-            RedirectAllRequestsTo
-          RoutingRules: 
-            - RoutingRule
+
 
     "BucketPolicy":
       Type: AWS::S3::BucketPolicy
