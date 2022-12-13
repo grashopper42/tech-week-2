@@ -5,6 +5,10 @@ Parameters:
     Type: String
     AllowedValues: ['dev', 'test', 'prod']
     Default: 'dev'
+  Region:
+    Type: String
+    AllowedValues: ['eu-central-1', 'us-east-1', 'us-west-1']
+    Default: 'eu-central-1'
 
 resources:
   "cloudfront":
@@ -74,5 +78,5 @@ resources:
         EnableDnsHostnames: true
         InstanceTenancy: default
         Region: 
-          Ref: Env
+          Ref: Region
 
