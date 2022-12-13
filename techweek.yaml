@@ -53,16 +53,18 @@ Resources:
             - '${Environment}.html'
             - Environment: !Ref Env
 
-    "BucketPolicy":
-      Type: AWS::S3::BucketPolicy
-      Properties:
-        Bucket: !Ref bucket
-        PolicyDocument:
-          Id: 1
-          Version: '2012-10-17'
-          Statement:
-            - Action: 's3:GetObject'
-              Effect: Allow
-              Principal:
-                AWS: !Sub 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOriginIdentity}'
-              Resource: !Sub 'arn:aws:s3:::${bucket}/*'
+
+  "BucketPolicy":
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref bucket
+      PolicyDocument:
+        Id: 1
+        Version: '2012-10-17'
+        Statement:
+          - Action: 
+              - 's3:GetObject'
+            Effect: Allow
+            Principal: '*'
+            #'AWS: !Sub 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOriginIdentity}'
+            Resource: !Sub 'arn:aws:s3:::${bucket}/*'

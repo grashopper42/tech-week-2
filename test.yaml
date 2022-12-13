@@ -31,7 +31,8 @@ Resources:
         Id: 1
         Version: '2012-10-17'
         Statement:
-          - Action: 's3:GetObject'
+          - Action: 
+              - 's3:GetObject'
             Effect: Allow
             Principal: '*'
             Resource: !Sub 'arn:aws:s3:::${bucket}/*'
