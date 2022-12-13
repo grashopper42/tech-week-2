@@ -10,7 +10,7 @@ Parameters:
     AllowedValues: ['eu-central-1', 'us-east-1', 'us-west-1']
     Default: 'eu-central-1'
 
-resources:
+Resources:
   "cloudfront":
     Type: AWS::CloudFront::Distribution
     Properties:
@@ -65,14 +65,3 @@ resources:
                 AWS: !Sub 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOriginIdentity}'
               Action: 's3:GetObject'
               Resource: arn:aws:s3:::my-s3-bucket/*
-
-    "VPC":
-      Type: AWS::EC2::VPC
-      Properties:
-        CidrBlock: 10.0.0.0/16
-        EnableDnsSupport: true
-        EnableDnsHostnames: true
-        InstanceTenancy: default
-        Region: 
-          Ref: Reg
-
