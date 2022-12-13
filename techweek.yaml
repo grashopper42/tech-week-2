@@ -56,7 +56,7 @@ resources:
     "BucketPolicy":
       Type: AWS::S3::BucketPolicy
       Properties:
-        Bucket: private-bucket
+        Bucket: my-s3-bucket
         PolicyDocument:
           Version: '2012-10-17'
           Statement:
