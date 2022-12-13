@@ -5,7 +5,7 @@ Parameters:
     Type: String
     AllowedValues: ['dev', 'test', 'prod']
     Default: 'dev'
-  Region:
+  Reg:
     Type: String
     AllowedValues: ['eu-central-1', 'us-east-1', 'us-west-1']
     Default: 'eu-central-1'
@@ -16,7 +16,7 @@ resources:
     Properties:
       DistributionConfig:
         Origins:
-          - DomainName: my-s3-bucket.s3.eu-central-1.amazonaws.com
+          - DomainName: !Sub my-s3-bucket.s3.${Reg}.amazonaws.com
             Id: my-s3-bucket
             S3OriginConfig:
               OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOriginIdentity}'
@@ -51,7 +51,7 @@ resources:
         VersioningConfiguration
       WebsiteConfiguration: 
           ErrorDocument: String
-          IndexDocument: String
+          IndexDocument: !sub ${Env}.html
           RedirectAllRequestsTo: 
             RedirectAllRequestsTo
           RoutingRules: 
@@ -78,5 +78,5 @@ resources:
         EnableDnsHostnames: true
         InstanceTenancy: default
         Region: 
-          Ref: Region
+          Ref: Reg
 
