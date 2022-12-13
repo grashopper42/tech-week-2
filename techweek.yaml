@@ -48,7 +48,9 @@ resources:
       VersioningConfiguration: 
           Status: Enabled
       WebsiteConfiguration: 
-          IndexDocument: !sub ${Env}.html
+          IndexDocument: !Sub 
+            - '${Environment}.html'
+            - Environment: !Ref Env
 
 
     "BucketPolicy":
