@@ -1,10 +1,8 @@
 import pulumi
 import pulumi_aws as aws
 
-# define the AWS region to deploy the resources
-reg = pulumi.get_config("Reg")
 # define the environment for the bucket
-env = pulumi.get_config("Env")
+env = 'prod'
 
 
 # create the S3 bucket
