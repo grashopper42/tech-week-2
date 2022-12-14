@@ -1,5 +1,5 @@
 import pulumi
-from pulumi_aws import s3, cloudfront
+import pulumi_aws as aws
 
 # define the AWS region to deploy the resources
 reg = pulumi.get_config("Reg")
@@ -7,7 +7,7 @@ reg = pulumi.get_config("Reg")
 env = pulumi.get_config("Env")
 
 # create the CloudFront origin identity
-origin_identity = cloudfront.CloudFrontOriginAccessIdentity(
+origin_identity = aws.cloudfront.CloudFrontOriginAccessIdentity(
     "CloudFrontOriginIdentity",
     cloudfront_origin_access_identity_config={
         "comment": "origin identity"
@@ -15,28 +15,36 @@ origin_identity = cloudfront.CloudFrontOriginAccessIdentity(
 )
 
 # create the CloudFront distribution
-distribution = cloudfront.Distribution(
-    "cloudfront",
-    distribution_config={
-        "enabled": True,
-        "comment": "Some comment",
-        "default_root_object": f"{env}.html",
-        "origins": [
-            {
-                "domain_name": bucket.bucket_regional_domain_name,
-                "id": bucket.id,
-                "s3_origin_config": {
-                    "origin_access_identity": origin_identity.cloudfront_access_identity_path
-                }
-            }
+distribution = aws.cloudfront.Distribution("cloudfront",
+    origins=[aws.cloudfront.DistributionOriginArgs(
+        domain_name=bucket.bucket_regional_domain_name,
+        origin_access_control_id=aws_cloudfront_origin_access_control["default"]["id"],
+        origin_id=bucket.id,
+    )],
+    enabled=True,
+    comment="Some comment",
+    default_root_object= f"{env}.html",
+    default_cache_behavior=aws.cloudfront.DistributionDefaultCacheBehaviorArgs(
+        allowed_methods=[
+            "GET",
+            "HEAD",
         ],
-        "default_cache_behavior": {
-            "allowed_methods": ["GET", "HEAD"],
-            "target_origin_id":
-
+        target_origin_id=bucket.s3_origin_id,
+        forwarded_values=aws.cloudfront.DistributionDefaultCacheBehaviorForwardedValuesArgs(
+            query_string=False,
+            cookies=aws.cloudfront.DistributionDefaultCacheBehaviorForwardedValuesCookiesArgs(
+                forward="none",
+            ),
+        ),
+        viewer_protocol_policy="redirect-to-https",
+    ),
+    viewer_certificate=aws.cloudfront.DistributionViewerCertificateArgs(
+        cloudfront_default_certificate=True,
+    )    
+)
 
 # create the S3 bucket
-bucket = s3.Bucket(
+bucket = aws.s3.Bucket(
     "bucket",
     bucket=f"s3-bucket-tech-week-2-awsome-{env}",
     versioning={
@@ -48,7 +56,7 @@ bucket = s3.Bucket(
 )
 
 # Create a bucket policy to allow CloudFront to read objects from the bucket
-bucket_policy = s3.BucketPolicy(
+bucket_policy = aws.s3.BucketPolicy(
     "BucketPolicy",
     bucket=bucket.id,
     policy=pulumi.interpolate(
