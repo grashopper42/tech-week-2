@@ -65,6 +65,6 @@ Resources:
           - Action: 
               - 's3:GetObject'
             Effect: Allow
-            Principal: '*'
-            #'AWS: !Sub 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOriginIdentity}'
+            Principal: 
+              AWS: !Sub 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOriginIdentity}'
             Resource: !Sub 'arn:aws:s3:::${bucket}/*'
