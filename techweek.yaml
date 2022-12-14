@@ -16,7 +16,6 @@ Resources:
     Properties:
       DistributionConfig:
         Origins:
-        #TODO: Figure out how to do region bound bucket
           - DomainName: !Sub 
             - 's3-bucket-tech-week-2-awsome-${Environment}.s3.us-east-1.amazonaws.com'
             - Environment: !Ref Env 

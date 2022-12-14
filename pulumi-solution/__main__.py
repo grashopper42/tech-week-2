@@ -6,32 +6,29 @@ reg = pulumi.get_config("Reg")
 # define the environment for the bucket
 env = pulumi.get_config("Env")
 
-# create the CloudFront origin identity
-origin_identity = aws.cloudfront.CloudFrontOriginAccessIdentity(
-    "CloudFrontOriginIdentity",
-    cloudfront_origin_access_identity_config={
-        "comment": "origin identity"
-    }
-)
 
 # create the S3 bucket
-bucket = aws.s3.Bucket(
-    "bucket",
-    bucket=f"s3-bucket-tech-week-2-awsome-{env}",
-    versioning={
-        "status": "Enabled"
-    },
-    website={
-        "index_document": f"{env}.html"
-    }
-)
+bucket_tw = aws.s3.Bucket(f"s3-bucket-tech-week-2-awsome-{env}",
+    acl="private",
+    versioning=aws.s3.BucketVersioningArgs(
+        enabled=True,
+    ),
+    website=aws.s3.BucketWebsiteArgs(
+        index_document=f"{env}.html",
+        error_document="error.html"
+    ))
+
+s3_origin_id = f"s3-bucket-tech-week-2-awsome-{env}"
 
 # create the CloudFront distribution
-distribution = aws.cloudfront.Distribution("cloudfront",
+distribution = aws.cloudfront.Distribution("s3Distribution",
     origins=[aws.cloudfront.DistributionOriginArgs(
-        domain_name=bucket.bucket_regional_domain_name,
+        domain_name=bucket_tw.bucket_regional_domain_name,
         origin_access_control_id=aws_cloudfront_origin_access_control["default"]["id"],
-        origin_id=bucket.id,
+        origin_id=s3_origin_id,
+        s3_origin_config=aws.cloudfront.DistributionOriginS3OriginConfigArgs(
+        origin_access_identity=aws_cloudfront_origin_access_identity["example"]["cloudfront_access_identity_path"],
+    )
     )],
     enabled=True,
     comment="Some comment",
@@ -41,7 +38,7 @@ distribution = aws.cloudfront.Distribution("cloudfront",
             "GET",
             "HEAD",
         ],
-        target_origin_id=bucket.s3_origin_id,
+        target_origin_id=s3_origin_id,
         forwarded_values=aws.cloudfront.DistributionDefaultCacheBehaviorForwardedValuesArgs(
             query_string=False,
             cookies=aws.cloudfront.DistributionDefaultCacheBehaviorForwardedValuesCookiesArgs(
@@ -58,31 +55,15 @@ distribution = aws.cloudfront.Distribution("cloudfront",
 
 
 # Create a bucket policy to allow CloudFront to read objects from the bucket
-bucket_policy = aws.s3.BucketPolicy(
-    "BucketPolicy",
-    bucket=bucket.id,
-    policy=pulumi.interpolate(
-        '''
-        {{
-            "Id": "1",
-            "Version": "2012-10-17",
-            "Statement": [
-                {{
-                    "Action": "s3:GetObject",
-                    "Effect": "Allow",
-                    "Principal": {{
-                        "AWS": "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${cloudfront_origin_identity}"
-                    }},
-                    "Resource": "arn:aws:s3:::{bucket_name}/*"
-                }}
-            ]
-        }}
-        ''',
-        cloudfront_origin_identity=pulumi.get_stack(),
-        bucket_name=bucket.bucket_name,
-    ),
-)
+s3_policy = aws.iam.get_policy_document(statements=[aws.iam.GetPolicyDocumentStatementArgs(
+    actions=["s3:GetObject"],
+    resources=[f"{bucket_tw['example']['arn']}/*"],
+    principals=[aws.iam.GetPolicyDocumentStatementPrincipalArgs(
+        type="AWS",
+        identifiers=[aws_cloudfront_origin_access_identity["example"]["iam_arn"]],
+    )],
+)])
 
-
-# Export the name of the bucket
-pulumi.export(f"s3-bucket-tech-week-2-awsome-{env}", bucket.id)
+bucket_policy = aws.s3.BucketPolicy("example",
+    bucket=bucket_tw["example"]["id"],
+    policy=s3_policy.json)
