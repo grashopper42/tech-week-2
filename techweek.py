@@ -14,6 +14,18 @@ origin_identity = aws.cloudfront.CloudFrontOriginAccessIdentity(
     }
 )
 
+# create the S3 bucket
+bucket = aws.s3.Bucket(
+    "bucket",
+    bucket=f"s3-bucket-tech-week-2-awsome-{env}",
+    versioning={
+        "status": "Enabled"
+    },
+    website={
+        "index_document": f"{env}.html"
+    }
+)
+
 # create the CloudFront distribution
 distribution = aws.cloudfront.Distribution("cloudfront",
     origins=[aws.cloudfront.DistributionOriginArgs(
@@ -43,17 +55,7 @@ distribution = aws.cloudfront.Distribution("cloudfront",
     )    
 )
 
-# create the S3 bucket
-bucket = aws.s3.Bucket(
-    "bucket",
-    bucket=f"s3-bucket-tech-week-2-awsome-{env}",
-    versioning={
-        "status": "Enabled"
-    },
-    website={
-        "index_document": f"{env}.html"
-    }
-)
+
 
 # Create a bucket policy to allow CloudFront to read objects from the bucket
 bucket_policy = aws.s3.BucketPolicy(
