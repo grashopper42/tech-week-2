@@ -23,6 +23,9 @@ Resources:
               OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOriginIdentity}'
         Enabled: 'true'
         Comment: Some comment
+        DefaultRootObject: !Sub 
+            - '${Environment}.html'
+            - Environment: !Ref Env
         DefaultCacheBehavior:
           AllowedMethods:
             - GET
