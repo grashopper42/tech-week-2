@@ -8,8 +8,7 @@ Parameters:
   Reg:
     Type: String
     AllowedValues: ['eu-central-1', 'us-east-1', 'us-west-1']
-    Default: 'eu-central-1'
-
+    Default: 'us-east-1'
 
 Resources:
   "cloudfront":
@@ -17,8 +16,13 @@ Resources:
     Properties:
       DistributionConfig:
         Origins:
-          - DomainName: !Sub s3-bucket-tech-week-2-awsome.s3.${Reg}.amazonaws.com
-            Id: s3-bucket-tech-week-2-awsome
+        #TODO: Figure out how to do region bound bucket
+          - DomainName: !Sub 
+            - 's3-bucket-tech-week-2-awsome-${Environment}.s3.us-east-1.amazonaws.com'
+            - Environment: !Ref Env 
+            Id: !Sub 
+            - 's3-bucket-tech-week-2-awsome-${Environment}'
+            - Environment: !Ref Env 
             S3OriginConfig:
               OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOriginIdentity}'
         Enabled: 'true'
@@ -30,14 +34,16 @@ Resources:
           AllowedMethods:
             - GET
             - HEAD
-          TargetOriginId: s3-bucket-tech-week-2-awsome
+          TargetOriginId: !Sub 
+            - 's3-bucket-tech-week-2-awsome-${Environment}'
+            - Environment: !Ref Env 
           ForwardedValues:
             QueryString: 'false'
             Cookies:
               Forward: none
           ViewerProtocolPolicy: redirect-to-https
         ViewerCertificate:
-          CloudFrontDefaultCertificate: 'true'
+          CloudFrontDefaultCertificate: 'true'  
 
   "CloudFrontOriginIdentity":
     Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
@@ -48,15 +54,16 @@ Resources:
   "bucket":
     Type: AWS::S3::Bucket
     Properties: 
-      BucketName: s3-bucket-tech-week-2-awsome
+      BucketName: !Sub 
+            - 's3-bucket-tech-week-2-awsome-${Environment}'
+            - Environment: !Ref Env 
       VersioningConfiguration: 
           Status: Enabled
       WebsiteConfiguration: 
           IndexDocument: !Sub 
             - '${Environment}.html'
             - Environment: !Ref Env
-
-
+      
   "BucketPolicy":
     Type: AWS::S3::BucketPolicy
     Properties:
