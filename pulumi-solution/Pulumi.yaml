@@ -1,0 +1,6 @@
+name: tech-week-2
+description: tech-week-2 pulumi version
+runtime:
+    name: python
+    options:
+        virtualenv: venv
