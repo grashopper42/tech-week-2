@@ -18,6 +18,7 @@ bucket_tw = aws.s3.Bucket(f"s3-bucket-tech-week-2-awsome-{env}",
 
 s3_origin_id = f"s3-bucket-tech-week-2-awsome-{env}"
 
+
 # create the CloudFront distribution
 distribution = aws.cloudfront.Distribution("s3Distribution",
     origins=[aws.cloudfront.DistributionOriginArgs(
@@ -51,7 +52,6 @@ distribution = aws.cloudfront.Distribution("s3Distribution",
 )
 
 
-
 # Create a bucket policy to allow CloudFront to read objects from the bucket
 s3_policy = aws.iam.get_policy_document(statements=[aws.iam.GetPolicyDocumentStatementArgs(
     actions=["s3:GetObject"],
@@ -61,6 +61,7 @@ s3_policy = aws.iam.get_policy_document(statements=[aws.iam.GetPolicyDocumentSta
         identifiers=[aws_cloudfront_origin_access_identity["example"]["iam_arn"]],
     )],
 )])
+
 
 bucket_policy = aws.s3.BucketPolicy("example",
     bucket=bucket_tw["example"]["id"],
